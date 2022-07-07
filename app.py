@@ -33,29 +33,34 @@ def main():
         df['pausa'] = df['Total Meal Break'].apply(conv_time_float)
         df['notturno'] = df['End Time'].apply(conv_time_float)
         df['notturno'].mask(df['notturno'] > 7, 0, inplace=True)
-        df['diurno'] = df['Total Time']- df['notturno']
+        df['totale'] = df['Total Time']
         df['data'] = df['Start Date']
-        df = df[['Team Member','data','notturno','diurno']]
 
+        df = df[['Team Member','data','notturno','totale']]
         from itertools import cycle
+
         ##repeat
         df2 = df.loc[df.index.repeat(3)].reset_index(drop=True)
+
         num_cycle = cycle([1, 2, 3])
         df2['cat'] = [next(num_cycle) for num in range(len(df2))]
-        ## repeat
-        df2 = df2.replace({'cat': {1: 'di cui diurni', 2: 'di cui notturni',3:'permessi'}})
-        df2['notturno'].mask(df2['cat'] == 'di cui diurni', 0, inplace=True)
-        df2['diurno'].mask(df2['cat'] == 'di cui notturni', 0, inplace=True)
-        df2['notturno'].mask(df2['cat'] == 'permessi', 0, inplace=True)
-        df2['diurno'].mask(df2['cat'] == 'permessi', 0, inplace=True)
 
-        df2['ore'] = df2['notturno']+df2['diurno']
+        ## repeat
+        df2 = df2.replace({'cat': {1: '_totale', 2: 'di cui notturni',3:'permessi'}})
+
+        df2['notturno'].mask(df2['cat'] == '_totale', 0, inplace=True)
+        df2['totale'].mask(df2['cat'] == 'di cui notturni', 0, inplace=True)
+        df2['notturno'].mask(df2['cat'] == 'permessi', 0, inplace=True)
+        df2['totale'].mask(df2['cat'] == 'permessi', 0, inplace=True)
+
+        df2['ore'] = df2['notturno']+df2['totale']
         df2 = df2[['Team Member','data','cat','ore']]
 
         multi = df2.set_index(['Team Member', 'cat'])
         multi['data'] = multi['data'].astype(str)
         multi = multi.pivot(columns='data')
         multi = multi.replace(np.nan,0)
+
         #multi.to_excel('ciao17.xlsx')
 
         with st.spinner("Processing Data..."):
