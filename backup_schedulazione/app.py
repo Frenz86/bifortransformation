@@ -30,17 +30,13 @@ def main():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
-        df["Mealbreak"] = df["Mealbreak"].str[:-3]
-        df["Start"] = df["Start"].str[:-3]
-        df["End"] = df["End"].str[:-3]
-
-        df['pausa'] = df['Mealbreak'].apply(conv_time_float)
-        df['notturno'] = df['End'].apply(conv_time_float)
+        df['pausa'] = df['Total Meal Break'].apply(conv_time_float)
+        df['notturno'] = df['End Time'].apply(conv_time_float)
         df['notturno'].mask(df['notturno'] > 7, 0, inplace=True)
-        df['totale'] = df['Total Hours']
-        df['data'] = df['Date']
+        df['totale'] = df['Total Time']
+        df['data'] = df['Start Date']
 
-        df = df[['Employee Name','data','notturno','totale']]
+        df = df[['Team Member','data','notturno','totale']]
         from itertools import cycle
 
         ##repeat
@@ -58,9 +54,9 @@ def main():
         df2['totale'].mask(df2['cat'] == 'permessi', 0, inplace=True)
 
         df2['ore'] = df2['notturno']+df2['totale']
-        df2 = df2[['Employee Name','data','cat','ore']]
+        df2 = df2[['Team Member','data','cat','ore']]
 
-        multi = df2.set_index(['Employee Name', 'cat'])
+        multi = df2.set_index(['Team Member', 'cat'])
         multi['data'] = multi['data'].astype(str)
         multi = multi.pivot(columns='data')
         multi = multi.replace(np.nan,0)
