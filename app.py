@@ -59,6 +59,8 @@ def main():
 
         df2['ore'] = df2['notturno']+df2['totale']
         df2 = df2[['Employee Name','data','cat','ore']]
+        df2 = df2.groupby(['Employee Name', 'data','cat']).sum()
+        df2 = df2.reset_index()
 
         multi = df2.set_index(['Employee Name', 'cat'])
         multi['data'] = multi['data'].astype(str)
