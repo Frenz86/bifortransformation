@@ -77,6 +77,7 @@ def main():
                 # Write each dataframe to a different worksheet.
                 st.dataframe(multi)
                 multi.to_excel(writer)
+                multi.close()
                 # Close the Pandas Excel writer and output the Excel file to the buffer
                 btn = st.download_button(
                     label="Download Excel Report",
